@@ -259,7 +259,7 @@ class TupleShape(BaseShape):
 
 
 
-def eval_shape(obj:Any, set_any_type=False) -> Any:
+def shape(obj:Any, set_any_type=False) -> Any:
     w = NodeWriter()
     object_crawler(obj, w)
     res = node_graph_to_obj(w.h, set_any_type)
