@@ -21,3 +21,7 @@ shape(model)
 ```
 [{'data?': {'detail': 'str|int'}, 'id': 'int', 'name': 'str'}]
 ```
+
+- Nullable properties have '?' appended at the end.
+- Values are replaced with string representation of data type.
+- If more than one data type is found, like the 'detail' property, union format is used.
