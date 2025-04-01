@@ -1,5 +1,5 @@
 from collections import namedtuple
-from ..shape_eval import shape, ShapeNode, node_graph_to_obj, DictShape, ListShape, TupleShape
+from ..service import shape, ShapeNode, node_graph_to_obj, DictShape, ListShape, TupleShape
 from types import SimpleNamespace
 from .base_test import get_civitai_sample
 import json
