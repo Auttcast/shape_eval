@@ -154,3 +154,16 @@ def test_complex_obj_civitai():
     obj = get_civitai_sample()
     shape(obj.result.data.json.collection)
     #does not throw
+
+def test_anon1():
+
+    anon_model = [
+        {'id': 1, 'name': "a", 'data': {'detail': "some string"} },
+        {'id': 2, 'name': "b", 'data': {'detail': 123} },
+        {'id': 3, 'name': "c"}
+    ]
+
+    result = shape(anon_model)
+
+    assert result == [{'data?': {'detail': 'str|int'}, 'id': 'int', 'name': 'str'}]
+    
