@@ -11,9 +11,11 @@ class ShapeNode:
         self.children:list[ShapeNode] = []
         self.tuple_index = None
         self.is_null_val = False
+        self.count = 1
 
-    def get_nullable_container_name(self):
-        if self.is_null_val: return f"{self.container_type}?"
+    def get_nullable_container_name_for_dict_key(self):
+        nullable_by_ref_count = self.count != self.parent.count
+        if self.is_null_val or nullable_by_ref_count: return f"{self.container_type}?"
         return self.container_type
 
     def add_child(self, node) -> Self:
@@ -54,6 +56,7 @@ class NodeWriter:
             out_param = []
             if self.current_node.has_child_with_container(raw_type, out_param):
                 self.current_node = out_param[0]
+                self.current_node.count += 1
                 if new_node.is_null_val:
                     self.current_node.is_null_val = True
                 return
@@ -83,10 +86,11 @@ def get_path_to_node_recurse(node):
 def get_path_to_node(node):
     return "->".join(list(reversed(get_path_to_node_recurse(node))))
 
-def node_graph_to_obj_dict_key_eval(parent_node:ShapeNode, set_any_type=False) -> Any :
+def node_graph_to_obj_dict_key_eval(parent_node:ShapeNode, set_any_type=False) -> Any:
     is_nullable_container = parent_node.is_null_val
     nodes = parent_node.children
-    if len(nodes) == 1: return node_graph_to_obj(nodes[0], set_any_type)
+    if len(nodes) == 1:
+        return node_graph_to_obj(nodes[0], set_any_type)
     else:
         not_none = lambda x: x is not None
         range_values = list(map(lambda x: x.value, nodes))
@@ -131,7 +135,7 @@ def node_graph_to_obj(node:ShapeNode, set_any_type=False) -> Any :
         else:
             return node.value
     if isinstance(node.container_type, dict):
-        return {c.get_nullable_container_name(): node_graph_to_obj_dict_key_eval(c, set_any_type) for c in node.children}
+        return {c.get_nullable_container_name_for_dict_key(): node_graph_to_obj_dict_key_eval(c, set_any_type) for c in node.children}
     if isinstance(node.container_type, list):
         return [node_graph_to_obj(c, set_any_type) for c in node.children]
     if isinstance(node.container_type, tuple):

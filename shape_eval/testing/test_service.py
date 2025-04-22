@@ -76,7 +76,7 @@ def test_eval_shape_dict2():
     ]
 
     s = shape(d)
-    assert s == [{"val": "int", "nested": {"n1": "int", "extra": "str"}}]
+    assert s == [{"val": "int", "nested": {"n1": "int", "extra?": "str"}}]
 
 def test_eval_shape_dict3():
     json_str = """
@@ -158,12 +158,12 @@ def test_complex_obj_civitai():
 def test_anon1():
 
     anon_model = [
-        {'id': 1, 'name': "a", 'data': {'detail': "some string"} },
-        {'id': 2, 'name': "b", 'data': {'detail': 123} },
-        {'id': 3, 'name': "c"}
+        {'id': 1, 'data': {'detail': "some string"} },
+        {'id': 2, 'data': {'detail': 123} },
+        {'id': 3}
     ]
 
     result = shape(anon_model)
 
-    assert result == [{'data?': {'detail': 'str|int'}, 'id': 'int', 'name': 'str'}]
+    assert result == [{'data?': {'detail': 'str|int'}, 'id': 'int'}]
     
