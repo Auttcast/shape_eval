@@ -2,16 +2,16 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-#[tool.setuptools.packages.find]
-#exclude = ["testing*"]
+[tool.setuptools.packages.find]
+exclude = ["testing*"]
 
 [project]
-name = "auttcomp"
+name = "shape_eval"
 version = "1.0.0"
 authors = [
   { name="Brandon McCartney", email="auttcast@gmail.com" },
 ]
-description = "tooling for object schema evaluation"
+description = "object schema evaluation"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
