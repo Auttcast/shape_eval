@@ -167,7 +167,7 @@ def test_anon1():
 
     assert result == [{'data?': {'detail': 'str|int'}, 'id': 'int'}]
     
-def test_tuple_prim_combination():
+def test_tuple_prim_none_combination():
 
     data = [
         ("x", 1, "y"),
@@ -178,4 +178,18 @@ def test_tuple_prim_combination():
     actual = shape(data)
 
     assert actual == [("str", "int|None", "str")]
+
+def test_tuple_obj_none_combination():
+
+    data = [
+        ("x", [1, 2, 3], "y"),
+        ("x", {"foo": "bar"}, "y"),
+        ("x", {"foo", "bar"}, "y"),
+        ("x", (1, 2), "y"),
+        ("x", None, "y"),
+        ]
+    
+    actual = shape(data)
+
+    assert actual == [("str", "list|dict|set|tuple|None", "str")]
 

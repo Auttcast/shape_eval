@@ -4,6 +4,8 @@ import pprint
 import io
 import itertools
 
+_NONE = "None"
+
 class ShapeNode:
     def __init__(self, container_type: Union[list|dict|str|tuple|None]=None, value:str=None, parent=None):
         self.container_type : Union[list|dict|str|tuple|None] = container_type
@@ -70,7 +72,7 @@ class NodeWriter:
     def push_dict_key(self, key, is_null_val=False): self.push_container(key, tuple_index=None, is_null_val=is_null_val)
 
     def write_name(self, value, tuple_index=None):
-        name = type(value).__name__ if value is not None else "None"
+        name = type(value).__name__ if value is not None else _NONE
         node = ShapeNode(value=name)
         node.tuple_index = tuple_index
         if self.h is None:
@@ -142,14 +144,27 @@ def node_graph_to_obj(node:ShapeNode, set_any_type=False) -> Any :
     if isinstance(node.container_type, tuple):
 
         grouping = itertools.groupby(sorted(node.children, key=lambda x: x.tuple_index), key=lambda x: x.tuple_index)
-        
-        g_values = map(lambda *x: x[0][1], iter(grouping))
+        g_values = map(lambda *x: list(x[0][1]), iter(grouping))
 
         result = []
         for g in g_values:
-            r = [node_graph_to_obj(c, set_any_type) for c in list(g)]
-            result.append("|".join(r))
-        
+            r = [node_graph_to_obj(c, set_any_type) for c in g]
+            all_prim_values = all(map(lambda x: isinstance(x, str), r))
+
+            if all_prim_values:
+                result.append("|".join(r))
+            elif len(r) > 1:
+                def coerce_to_str(value):
+                    if isinstance(value, str):
+                        return value
+                    else:
+                        return type(value).__name__
+                    
+                coerced = list(map(coerce_to_str, r))
+                result.append("|".join(coerced))
+            else:
+                result.append(r[0])
+
         return tuple(result)
     
     raise Exception("unexpected path")
