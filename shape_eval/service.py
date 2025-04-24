@@ -2,6 +2,7 @@ from typing import Union, Self, Any
 import sys
 import pprint
 import io
+import itertools
 
 class ShapeNode:
     def __init__(self, container_type: Union[list|dict|str|tuple|None]=None, value:str=None, parent=None):
@@ -139,7 +140,17 @@ def node_graph_to_obj(node:ShapeNode, set_any_type=False) -> Any :
     if isinstance(node.container_type, list):
         return [node_graph_to_obj(c, set_any_type) for c in node.children]
     if isinstance(node.container_type, tuple):
-        return tuple([node_graph_to_obj(c, set_any_type) for c in sorted(node.children, key=lambda x: x.tuple_index)])
+
+        grouping = itertools.groupby(sorted(node.children, key=lambda x: x.tuple_index), key=lambda x: x.tuple_index)
+        
+        g_values = map(lambda *x: x[0][1], iter(grouping))
+
+        result = []
+        for g in g_values:
+            r = [node_graph_to_obj(c, set_any_type) for c in list(g)]
+            result.append("|".join(r))
+        
+        return tuple(result)
     
     raise Exception("unexpected path")
 

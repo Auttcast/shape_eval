@@ -1,0 +1,2 @@
+1.0.1
+fixed bug outlined in test_tuple_prim_combination
