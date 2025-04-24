@@ -1,2 +1,5 @@
+1.0.2
+improved tuple obj notation: test_tuple_obj_none_combination
+
 1.0.1
 fixed bug outlined in test_tuple_prim_combination
