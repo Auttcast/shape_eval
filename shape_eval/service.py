@@ -71,8 +71,14 @@ class NodeWriter:
     def push_tuple(self, tuple_index=None): self.push_container((1,), tuple_index)
     def push_dict_key(self, key, is_null_val=False): self.push_container(key, tuple_index=None, is_null_val=is_null_val)
 
+    def get_type_name(self, value):
+        if type(value) in {str, int, float, list, set, dict, tuple}:
+            return type(value).__name__
+        else:
+            return f".{type(value).__name__}"
+
     def write_name(self, value, tuple_index=None):
-        name = type(value).__name__ if value is not None else _NONE
+        name = self.get_type_name(value) if value is not None else _NONE
         node = ShapeNode(value=name)
         node.tuple_index = tuple_index
         if self.h is None:

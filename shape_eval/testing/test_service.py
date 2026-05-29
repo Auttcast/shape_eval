@@ -209,6 +209,6 @@ def test_nonstandard_object_does_not_throw():
     </body>
     '''
     soup = BeautifulSoup(doc, 'html.parser')
-    actual = shape(list(soup.select_one('body').children))
-    from pprint import pprint
-    pprint(actual)
+    expected = ['.NavigableString', '.Tag']
+    actual = shape(list(soup.select_one('body div').children))
+    assert actual == expected
