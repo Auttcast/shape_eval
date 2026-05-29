@@ -180,7 +180,7 @@ def dict_kv(obj):
             yield k, v.get(k)
 
 def normalize_type(obj):
-    if hasattr(obj, "__dict__"):
+    if obj.__class__.__name__ == 'SimpleNamespace':
         obj = obj.__dict__
     return obj
 
