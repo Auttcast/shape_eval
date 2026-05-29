@@ -3,6 +3,7 @@ from ..service import shape, ShapeNode, node_graph_to_obj, DictShape, ListShape,
 from types import SimpleNamespace
 from .base_test import get_civitai_sample
 import json
+from bs4 import BeautifulSoup
 
 def test_shape_node():
     main = ShapeNode({})
@@ -193,3 +194,21 @@ def test_tuple_obj_none_combination():
 
     assert actual == [("str", "list|dict|set|tuple|None", "str")]
 
+def test_nonstandard_object_does_not_throw():
+    doc = '''
+    <body>
+        <div>
+            <h1>header</h1>
+            <p>nothing</p>
+        </div>
+        <div style="position: absolute">
+            <h2>header</h2>
+            <p>nothing</p>
+        </div>
+        <p>foo</p>
+    </body>
+    '''
+    soup = BeautifulSoup(doc, 'html.parser')
+    actual = shape(list(soup.select_one('body').children))
+    from pprint import pprint
+    pprint(actual)
