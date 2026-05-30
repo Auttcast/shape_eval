@@ -1,2 +1,12 @@
+1.1.0
+added support for named tuples - tuple names and keys are now printed
+non-standard classes are not evaluated, but print with a "." prefix
+
+1.0.2
+improved tuple obj notation: test_tuple_obj_none_combination
+
+1.0.1
+fixed bug outlined in test_tuple_prim_combination
+
 1.0.0
 shape_eval was seperated from auttcomp
