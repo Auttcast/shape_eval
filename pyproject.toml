@@ -7,7 +7,7 @@ exclude = ["testing*"]
 
 [project]
 name = "shape_eval"
-version = "1.0.2"
+version = "1.1.0"
 authors = [
   { name="Brandon McCartney", email="auttcast@gmail.com" },
 ]

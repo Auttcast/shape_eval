@@ -1,3 +1,6 @@
+1.1.0
+added support for named tuples - tuple names and keys are now printed
+
 1.0.2
 improved tuple obj notation: test_tuple_obj_none_combination
 
