@@ -14,6 +14,8 @@ class ShapeNode:
         self.parent:ShapeNode = parent
         self.children:list[ShapeNode] = []
         self.tuple_index = None
+        self.tuple_name = None
+        self.tuple_fields = None
         self.is_null_val = False
         self.count = 1
 
@@ -47,11 +49,13 @@ class NodeWriter:
 
     def pop(self): self.current_node = self.current_node.parent
 
-    def push_container(self, raw_type, tuple_index=None, is_null_val=False):
+    def push_container(self, raw_type, tuple_index=None, is_null_val=False, tuple_name=None, tuple_fields=None):
 
         new_node = ShapeNode(container_type=raw_type)
         new_node.tuple_index = tuple_index
         new_node.is_null_val = is_null_val
+        new_node.tuple_name = tuple_name
+        new_node.tuple_fields = tuple_fields
 
         if self.h is None:
             self.current_node = new_node
@@ -70,7 +74,7 @@ class NodeWriter:
     def push_list(self, tuple_index=None): self.push_container([], tuple_index)
     def push_dict(self, tuple_index=None): self.push_container({}, tuple_index)
     def push_tuple(self, tuple_index=None): self.push_container((1,), tuple_index)
-    def push_namedtuple(self, tuple_index=None): self.push_container(namedtuple, tuple_index)
+    def push_namedtuple(self, tuple_name, tuple_fields, tuple_index=None, ): self.push_container((1,), tuple_index, tuple_name=tuple_name, tuple_fields=tuple_fields)
     def push_dict_key(self, key, is_null_val=False): self.push_container(key, tuple_index=None, is_null_val=is_null_val)
 
     def get_type_name(self, value):
@@ -81,8 +85,6 @@ class NodeWriter:
 
     def write_name(self, value, tuple_index=None):
         name = self.get_type_name(value) if value is not None else _NONE
-
-        #is_named_tuple = hasattr(obj, '_fields')
         node = ShapeNode(value=name)
         node.tuple_index = tuple_index
         if self.h is None:
@@ -154,10 +156,9 @@ def node_graph_to_obj(node:ShapeNode, set_any_type=False) -> Any :
     if isinstance(node.container_type, tuple):
 
         grouping = itertools.groupby(sorted(node.children, key=lambda x: x.tuple_index), key=lambda x: x.tuple_index)
-        g_values = map(lambda *x: list(x[0][1]), iter(grouping))
 
         result = []
-        for g in g_values:
+        for g in map(lambda *x: list(x[0][1]), iter(grouping)):
             r = [node_graph_to_obj(c, set_any_type) for c in g]
             all_prim_values = all(map(lambda x: isinstance(x, str), r))
 
@@ -175,7 +176,11 @@ def node_graph_to_obj(node:ShapeNode, set_any_type=False) -> Any :
             else:
                 result.append(r[0])
 
-        return tuple(result)
+        if node.tuple_name is not None and node.tuple_fields is not None:
+            ntup = namedtuple(node.tuple_name, node.tuple_fields)
+            return ntup(*result)
+        else:
+            return tuple(result)
     
     raise Exception("unexpected path")
 
@@ -210,10 +215,11 @@ def object_crawler(obj:Any, node_writer:NodeWriter, tuple_index:int=None):
             object_crawler(value, node_writer)
             node_writer.pop()
         node_writer.pop()
-    elif hasattr(obj, '_fields'):#is namedtuple
-        node_writer.push_tuple
     elif isinstance(obj, tuple):
-        node_writer.push_tuple(tuple_index)
+        if hasattr(obj, '_fields'):
+            node_writer.push_namedtuple(type(obj).__name__, obj._fields, tuple_index)
+        else:
+            node_writer.push_tuple(tuple_index)
         for i in range(0, len(obj)):
             object_crawler(obj[i], node_writer, tuple_index=i)
         node_writer.pop()

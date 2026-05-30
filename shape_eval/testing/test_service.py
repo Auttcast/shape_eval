@@ -212,10 +212,12 @@ def test_keyvaluepair():
 
     data = [
         KeyValuePair(key=1, value=['a', 'b']),
-        KeyValuePair(key=2, value=['b', 'c'])
+        KeyValuePair(key=2, value=['b', 'x'])
     ]
 
     expected = [KeyValuePair(key='int', value=['str'])]
 
     actual = shape(data)
-    assert actual == expected
+
+    #must use str compare to ensure named tuples
+    assert str(actual).strip() == str(expected).strip()
