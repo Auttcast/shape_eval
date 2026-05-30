@@ -21,54 +21,34 @@ def test_shape_node2():
     assert r == {"foo": "str|int"}
 
 def test_eval_shape_prim():
-    d = 1
-    s = shape(d)
-    assert s == 'int'
+    assert shape(1) == 'int'
 
 def test_eval_shape_list_empty():
-    d = []
-    s = shape(d)
-    assert s == []
+    assert shape([]) == []
 
 def test_eval_shape_list():
-    d = [1, 2, 2, 2]
-    s = shape(d)
-    assert s == ['int']
+    assert shape([1, 2, 2, 2]) == ['int']
 
 def test_eval_shape_list1():
-    d = [1, 2, 2.0, 2]
-    s = shape(d)
-    assert s == ['int', 'float']
+    assert shape([1, 2, 2.0, 2]) == ['int', 'float']
 
 def test_eval_shape_list2():
-    d = [[1, 2, 2, 2], [1, 2, 2, 2]]
-    s = shape(d)
-    assert s == [['int']]
+    assert shape([[1, 2, 2, 2], [1, 2, 2, 2]]) == [['int']]
 
 def test_eval_shape_list3():
-    d = [[1, 2, 2.0, 2], [1, 2, 2.0, 2]]
-    s = shape(d)
-    assert s == [['int', 'float']]
+    assert shape([[1, 2, 2.0, 2], [1, 2, 2.0, 2]]) == [['int', 'float']]
 
 def test_eval_shape_list4():
-    d = [ 1, [1, 2, 2.0, 2], [1, 2, 2.0, 2]]
-    s = shape(d)
-    assert s == ['int', ['int', 'float']]
+    assert shape([ 1, [1, 2, 2.0, 2], [1, 2, 2.0, 2]]) == ['int', ['int', 'float']]
 
 def test_eval_shape_dict_empty():
-    d = {}
-    s = shape(d)
-    assert s == {}
+    assert shape({}) == {}
 
 def test_eval_shape_dict1():
-    d = {"val": 1}
-    s = shape(d)
-    assert s == {"val": "int"}
+    assert shape({"val": 1}) == {"val": "int"}
 
 def test_eval_shape_dict2():
-    d = {"val": 1, "nested": {"n1": 2}}
-    s = shape(d)
-    assert s == {"val": "int", "nested": {"n1": "int"}}
+    assert shape({"val": 1, "nested": {"n1": 2}}) == {"val": "int", "nested": {"n1": "int"}}
 
 def test_eval_shape_dict2():
     d = [
@@ -76,8 +56,7 @@ def test_eval_shape_dict2():
         {"val": 1, "nested": {"n1": 2, "extra": "hello"}}
     ]
 
-    s = shape(d)
-    assert s == [{"val": "int", "nested": {"n1": "int", "extra?": "str"}}]
+    assert shape(d) == [{"val": "int", "nested": {"n1": "int", "extra?": "str"}}]
 
 def test_eval_shape_dict3():
     json_str = """
@@ -90,8 +69,8 @@ def test_eval_shape_dict3():
     """
 
     json_obj = json.loads(json_str, object_hook=lambda d: SimpleNamespace(**d))
-    s = shape(json_obj)
-    assert s == {"l1": {"l2p1": ['int'], "l2p2": ["str"]}}
+
+    assert shape(json_obj) == {"l1": {"l2p1": ['int'], "l2p2": ["str"]}}
 
 def test_eval_shape_dict4():
     obj = {
@@ -99,8 +78,7 @@ def test_eval_shape_dict4():
             "l2p2": ("x", 123)
         }
 
-    s = shape(obj)
-    assert s == {"l2p1": [("str", ('int',))], "l2p2": ("str", 'int')}
+    assert shape(obj) == {"l2p1": [("str", ('int',))], "l2p2": ("str", 'int')}
 
 def test_shape_eval_get_attr_returns_shape():
     obj = {
@@ -203,8 +181,7 @@ def test_nonstandard_object_does_not_throw():
 
     
 def test_keyvaluepair():
-    from typing import Any, NamedTuple
-    from pprint import pprint
+    from typing import NamedTuple
 
     class KeyValuePair[K, V](NamedTuple):
         key:K
@@ -216,7 +193,6 @@ def test_keyvaluepair():
     ]
 
     expected = [KeyValuePair(key='int', value=['str'])]
-
     actual = shape(data)
 
     #must use str compare to ensure named tuples
