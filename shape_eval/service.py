@@ -79,6 +79,8 @@ class NodeWriter:
 
     def write_name(self, value, tuple_index=None):
         name = self.get_type_name(value) if value is not None else _NONE
+
+        #is_named_tuple = hasattr(obj, '_fields')
         node = ShapeNode(value=name)
         node.tuple_index = tuple_index
         if self.h is None:
@@ -190,7 +192,7 @@ def normalize_type(obj):
         obj = obj.__dict__
     return obj
 
-def object_crawler(obj, node_writer, tuple_index=None):
+def object_crawler(obj:Any, node_writer:NodeWriter, tuple_index:int=None):
 
     obj = normalize_type(obj)
 
@@ -206,6 +208,8 @@ def object_crawler(obj, node_writer, tuple_index=None):
             object_crawler(value, node_writer)
             node_writer.pop()
         node_writer.pop()
+    # elif hasattr(obj, '_fields'):#is namedtuple
+    #     pass
     elif isinstance(obj, tuple):
         node_writer.push_tuple(tuple_index)
         for i in range(0, len(obj)):

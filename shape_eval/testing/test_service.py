@@ -116,28 +116,16 @@ def test_shape_eval_get_attr_returns_shape():
     assert isinstance(s1, TupleShape), f"the shape is {type(s1)}"
 
 def test_tuple_with_list():
-    tup = namedtuple("mytup", ["a", "b", "c"])
-    t1 = tup(1, 2, [1])
-    sh = shape(t1)
-    assert sh == ('int', 'int', ['int'])
+    assert shape((1, 2, [1])) == ('int', 'int', ['int'])
 
 def test_tuple_with_dict():
-    tup = namedtuple("mytup", ["a", "b", "c"])
-    t1 = tup(1, 2, {"foo": 1})
-    sh = shape(t1)
-    assert sh == ('int', 'int', {"foo": 'int'})
+    assert shape((1, 2, {"foo": 1})) == ('int', 'int', {"foo": 'int'})
 
 def test_tuple_with_dupes():
-    tup = namedtuple("mytup", ["a", "b", "c"])
-    t1 = tup(1, 2, 3)
-    sh = shape(t1)
-    assert sh == ('int', 'int', 'int')
+    assert shape((1, 2, 3)) == ('int', 'int', 'int')
 
 def test_tuple_with_dupes_arr():
-    tup = namedtuple("mytup", ["a", "b", "c"])
-    t1 = [tup(1, 2, 3), tup(1, 2, 3)]
-    sh = shape(t1)
-    assert sh == [('int', 'int', 'int')]
+    assert shape([(1, 2, 3), (1, 2, 3)]) == [('int', 'int', 'int')]
 
 def test_dict_sometimes_null():
     d1 = {"val": 1, "nested": {"n1": 2}}
@@ -211,4 +199,23 @@ def test_nonstandard_object_does_not_throw():
     soup = BeautifulSoup(doc, 'html.parser')
     expected = ['.NavigableString', '.Tag']
     actual = shape(list(soup.select_one('body div').children))
+    assert actual == expected
+
+    
+def test_keyvaluepair():
+    from typing import Any, NamedTuple
+    from pprint import pprint
+
+    class KeyValuePair[K, V](NamedTuple):
+        key:K
+        value:V
+
+    data = [
+        KeyValuePair(key=1, value=['a', 'b']),
+        KeyValuePair(key=2, value=['b', 'c'])
+    ]
+
+    expected = [KeyValuePair(key='int', value=['str'])]
+
+    actual = shape(data)
     assert actual == expected
