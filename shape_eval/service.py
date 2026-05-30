@@ -1,4 +1,5 @@
 from typing import Union, Self, Any
+from collections import namedtuple
 import sys
 import pprint
 import io
@@ -69,6 +70,7 @@ class NodeWriter:
     def push_list(self, tuple_index=None): self.push_container([], tuple_index)
     def push_dict(self, tuple_index=None): self.push_container({}, tuple_index)
     def push_tuple(self, tuple_index=None): self.push_container((1,), tuple_index)
+    def push_namedtuple(self, tuple_index=None): self.push_container(namedtuple, tuple_index)
     def push_dict_key(self, key, is_null_val=False): self.push_container(key, tuple_index=None, is_null_val=is_null_val)
 
     def get_type_name(self, value):
@@ -208,8 +210,8 @@ def object_crawler(obj:Any, node_writer:NodeWriter, tuple_index:int=None):
             object_crawler(value, node_writer)
             node_writer.pop()
         node_writer.pop()
-    # elif hasattr(obj, '_fields'):#is namedtuple
-    #     pass
+    elif hasattr(obj, '_fields'):#is namedtuple
+        node_writer.push_tuple
     elif isinstance(obj, tuple):
         node_writer.push_tuple(tuple_index)
         for i in range(0, len(obj)):
